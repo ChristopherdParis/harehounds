@@ -1,0 +1,28 @@
+# Ignorar carpetas generadas automáticamente
+__pycache__/
+*.pyc
+
+# Ignorar imágenes u otros archivos grandes innecesarios
+img/
+*.jpg
+*.png
+*.gif
+
+# Ignorar archivos de log o temporales
+*.log
+*.tmp
+*.temp
+*.swp
+*~
+
+# Archivos o directorios específicos que no deseas incluir
+nada.py
+
+# Incluir los archivos importantes explícitamente
+!app.py
+!main.py
+
+# Incluir los directorios importantes explícitamente
+!controllers/
+!models/
+!views/
