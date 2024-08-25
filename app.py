@@ -10,8 +10,15 @@ class Aplicacion:
         self.root.minsize(600, 600)
         #self.root.configure(bg="#bbccaa")
 
-        self.vistaPrincipal = VistaPrincipal(self.root)
+        # Crear la vista primero
+        self.vistaPrincipal = VistaPrincipal(self.root)  # Inicializar la vista sin controlador
         self.controllerPrincipal = MainController(self.vistaPrincipal)
+
+        # Crear el controlador después de la vista
+
+        # Asignar el controlador a la vista
+        self.vistaPrincipal.set_controller(self.controllerPrincipal)
+
 
     def run(self):
         self.root.mainloop()
