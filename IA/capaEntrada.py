@@ -1,3 +1,4 @@
+'''
 import numpy as np
 # CAPA DE ENTRADA
 
@@ -37,6 +38,29 @@ print("Entrada perro2:")
 print(entrada_perro_2)
 print("Entrada perro3:")
 print(entrada_perro_3)
+'''
 
 # Guardar el vector de entrada en un archivo de texto
 #np.savetxt('entrada_data.txt', entrada_data, delimiter=',')
+# Number of elements
+N = 15
+
+# Positions
+ps_conejo = 10  # Position for rabbit (conejo)
+ps_perro_1 = 2  # Position for dog 1 (perro 1)
+ps_perro_2 = 6  # Position for dog 2 (perro 2)
+ps_perro_3 = 12 # Position for dog 3 (perro 3)
+
+# Step 1: Initialize the list with zeros
+game_board = [0] * N
+
+# Step 2: Place the rabbit (conejo) in its position
+game_board[ps_conejo] = 1
+
+# Step 3: Place the dogs (perros) in their positions
+game_board[ps_perro_1] = 2
+game_board[ps_perro_2] = 2
+game_board[ps_perro_3] = 2
+
+# Output the generated list
+print(game_board)

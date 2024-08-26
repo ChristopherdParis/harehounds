@@ -1,4 +1,5 @@
 from models.grafo import Grafo
+import numpy as np
 
 class MainController:
     def __init__(self, view):
@@ -28,8 +29,6 @@ class MainController:
             self.perro2_text = self.view.dibujar_perro(self.graph.nodos[self.perro2_nodo], "Perro2")
             self.perro3_text = self.view.dibujar_perro(self.graph.nodos[self.perro3_nodo], "Perro3")
 
-            
-
     def iniciar_juego(self):
         seleccion = self.view.jugador_inicial.get()
         if seleccion == "perros":
@@ -41,11 +40,25 @@ class MainController:
             self.turno = seleccion
             self.view.canvas.bind("<Button-1>", self.mostrar_mensaje)
             print("El juego inicia con la Liebre.")
+            tablero = self.generar_posiciones_entrada()
+            movimiento = self.cerebro_conejo(tablero)
+            self.validarturno(movimiento)
             # Lógica para mover liebre primero
         else:
             print("El juego inicia con la Liebre.")
             # Lógica para mover liebre primero
         self.view.mostrarTurno(seleccion)
+
+    
+    def generar_posiciones_entrada(self):
+        tablero = [0] * 15
+        
+        tablero[self.conejo_nodo] = 1
+        tablero[self.perro1_nodo] = 2
+        tablero[self.perro2_nodo] = 2
+        tablero[self.perro3_nodo] = 2
+        print(tablero)
+        return tablero
 
     def help(self):
         print("[+] necesito aiuda")
@@ -59,14 +72,28 @@ class MainController:
             nodo = int(tags[0])
             if self.turno == "liebre":
                 if self.graph.estan_conectados(self.nodo_seleccionado_conejo, nodo):
-                    print(f"Los nodos {self.nodo_seleccionado_conejo} y {nodo} están conectados.")
+                    print(f"Los nodos {self.nodo_seleccionado_conejo} y {nodo} estan conectados.")
                     self.nodo_seleccionado_conejo = nodo
                     self.turnoConejo(nodo)
                 else:
-                    print(f"Los nodos conejo {self.nodo_seleccionado_conejo} y {nodo} NO están conectados.")
+                    print(f"Los nodos conejo {self.nodo_seleccionado_conejo} y {nodo} no estn conectados.")
             elif self.turno == "perros":
                 print("somos perros y toca a los perros")
                 self.logicaperros(nodo)
+
+    def validarturno(self,nodo):
+        if self.graph.estan_conectados(self.nodo_seleccionado_conejo, nodo):
+            print(f"Los nodos {self.nodo_seleccionado_conejo} y {nodo} estan conectados.")
+            self.nodo_seleccionado_conejo = nodo
+            self.turnoConejo(nodo)
+        else:
+            print(f"Los nodos {self.nodo_seleccionado_conejo} y {nodo} no estan conectados.")
+            print("[+] movimiento no validao")
+            print("[+] vuelta llamada")
+            tabla = self.generar_posiciones_entrada()
+            movimiento = self.cerebro_conejo(tabla)
+            self.validarturno(movimiento)
+
 
     def turnoConejo(self,nodo):
         if nodo != self.perro1_nodo and nodo != self.perro2_nodo and nodo != self.perro3_nodo:
@@ -155,6 +182,9 @@ class MainController:
         if turno == 2:
             self.turno = "liebre"
             self.view.mostrarTurno("liebre")
+            tabla = self.generar_posiciones_entrada()
+            movimiento = self.cerebro_conejo(tabla)
+            self.validarturno(movimiento)
         if turno == 1:
             self.turno = "perros"
             self.view.mostrarTurno("perros")
@@ -163,142 +193,161 @@ class MainController:
         self.view.mover(self.view.conejo_text, self.graph.nodos[nuevo_nodo])
         self.conejo_nodo = nuevo_nodo
 
+    # red neuronal conejo
+    def sigmoid(self,x):
+        return 1 / (1 + np.exp(-x))
+
+    def sigmoid_derivative(self,x):
+        return x * (1 - x)
     
-    '''
-    def mostrar_mensaje(self, event):
-        item = self.view.canvas.find_closest(event.x, event.y)
-        tags = self.view.canvas.gettags(item)
-        print("[+] Turno: " , self.turno)
-        
+    def cerebro_conejo(self, entrada):
+        print("llamada a la ia")
+        #return 9
+        posiciones_tablero = [
+            (
+                # posicion tablero
+                [
+                    0, 2, 0, 0, 0,
+                    2, 0, 0, 0, 1, 
+                    0, 2, 0, 0, 0, 
+                ],
+                # salida esperada
+                [
+                    0, 0, 0, 0, 0,
+                    0, 0, 0, 1, 0, 
+                    0, 0, 0, 0, 0, 
+                ]
+            ),
+            (
+                [
+                    0, 0, 0, 0, 0,
+                    2, 0, 2, 1, 0, 
+                    0, 2, 0, 0, 0, 
+                ],
+                [
+                    0, 0, 0, 1, 0,
+                    0, 0, 0, 0, 0, 
+                    0, 0, 0, 0, 0, 
+                ]
+            ),
+            (
+                [
+                    0, 2, 0, 1, 0,
+                    0, 0, 2, 0, 0, 
+                    0, 2, 0, 0, 0, 
+                ],
+                [
+                    0, 0, 1, 0, 0,
+                    0, 0, 0, 0, 0, 
+                    0, 0, 0, 0, 0, 
+                ]
+            ),
+            (
+                [
+                    0, 2, 0, 1, 0,
+                    0, 0, 2, 0, 0, 
+                    0, 0, 2, 0, 0, 
+                ],
+                [
+                    0, 0, 0, 1, 0,
+                    0, 0, 0, 0, 0, 
+                    0, 0, 0, 0, 0, 
+                ]
+            ),
+            (
+                [
+                    0, 0, 2, 1, 0,
+                    0, 0, 2, 0, 0, 
+                    0, 0, 2, 0, 0, 
+                ],
+                [
+                    0, 0, 0, 0, 0,
+                    0, 0, 0, 1, 0, 
+                    0, 0, 0, 0, 0, 
+                ]
+            ),
+            (
+                [
+                    0, 0, 2, 0, 0,
+                    0, 0, 2, 1, 0, 
+                    0, 0, 0, 2, 0, 
+                ],
+                [
+                    0, 0, 0, 1, 0,
+                    0, 0, 0, 0, 0, 
+                    0, 0, 0, 0, 0, 
+                ]
+            ),
+            (
+                [
+                    0, 0, 2, 1, 0,
+                    0, 0, 2, 2, 0, 
+                    0, 0, 0, 0, 0, 
+                ],
+                [
+                    0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 1, 
+                    0, 0, 0, 0, 0, 
+                ]
+            ),
+        ]
 
-        if tags:
-            nodo = int(tags[0])
-            if self.turno == "liebre":
+        entradas = 15
+        neuronas = entradas * 2
+        salidas = entradas
 
-                if self.graph.estan_conectados(self.nodo_seleccionado_conejo, nodo):
-                    mensaje = f"Los nodos {self.nodo_seleccionado_conejo} y {nodo} están conectados."
-                    self.nodo_seleccionado_conejo = nodo
-                    self.turnoConejo(nodo)
-                else:
-                    mensaje = f"Los nodos conejo {self.nodo_seleccionado_conejo} y {nodo} NO están conectados."
-                    #print("[-]", mensaje)
-            elif self.turno == "perros":
-                print("somos perros y toca a los perros")
-                self.logicaperros(nodo)
-            else:
-                if self.graph.estan_conectados(self.nodo_seleccionado_perros, nodo):
-                    mensaje = f"Los nodos perro {self.nodo_seleccionado_perros} y {nodo} están conectados."
-                    
-                    #print("[+]", mensaje)
-                    self.turnoPerro(nodo)
-                else:
-                    mensaje = f"Los perro nodos {self.nodo_seleccionado_perros} y {nodo} NO están conectados."
-                    print("[-]", mensaje)
+        pesos = np.random.uniform(-1, 1, (neuronas, entradas))
+        bias = np.random.uniform(-1, 1, (neuronas, 1))
 
-    def logicaperros(self,nodo):
-        # Verifica si un perro ya ha sido seleccionado
-        if self.nodo_seleccionado_perros is None:
-            # Paso 1: Selección del perro
-            if nodo in [self.perro1_nodo, self.perro2_nodo, self.perro3_nodo]:
-                self.nodo_seleccionado_perros = nodo
-                print(f"Perro {nodo} seleccionado. Ahora elige el nodo destino.")
-            else:
-                print(f"El nodo seleccionado {nodo} no corresponde a la posición de ningún perro.")
-        else:
-            # Paso 2: Movimiento del perro seleccionado
-            perro_seleccionado = self.nodo_seleccionado_perros
-            print("resultado si el perro selecionado", self.graph.estan_conectados(perro_seleccionado, nodo))
-            if self.graph.estan_conectados(perro_seleccionado, nodo):
-                print(f"Moviendo el perro de {perro_seleccionado} a {nodo}.")
-                if perro_seleccionado == self.perro1_nodo:
-                    print(" el perro selecionado es el 1")
-                    self.turnoPerro1(nodo)
-                    #self.perro1_nodo = nodo
-                elif perro_seleccionado == self.perro2_nodo:
-                    #self.perro2_nodo = nodo
-                    print(" el perro selecionado es el 2")
-                    self.turnoPerro2(nodo)
-                elif perro_seleccionado == self.perro3_nodo:
-                    print(" el perro selecionado es el 3")
-                    self.turnoPerro3(nodo)
-                    #self.perro3_nodo = nodo
+        pesos_salidas = np.random.uniform(-1, 1, (salidas, neuronas))
+        bias_salidas = np.random.uniform(-1, 1, (salidas, 1))
+
+
+        # Parámetros de entrenamiento
+        tasa_aprendizaje = 0.1
+        epocas = 1000
+
+        # Entrenamiento de la red neuronal
+        for epoch in range(epocas):
+            for tablero, mejor_movimiento in posiciones_tablero:
+                tablero = np.array(tablero).reshape(-1, 1)
+                mejor_movimiento = np.array(mejor_movimiento).reshape(-1, 1)
+                entrada_capa_oculta = np.dot(pesos, tablero) + bias
+                salida_capa_oculta = self.sigmoid(entrada_capa_oculta)
+
+                entrada_capa_salida = np.dot(pesos_salidas, salida_capa_oculta) + bias_salidas
+                salida_capa_salida = self.sigmoid(entrada_capa_salida)
+
                 
-                self.nodo_seleccionado_perros = None
-            else:
-                print(f"Los nodos {perro_seleccionado} y {nodo} no están conectados. No se puede mover.")
-    '''
-        
+                output_error = mejor_movimiento - salida_capa_salida
+                output_delta = output_error * self.sigmoid_derivative(salida_capa_salida)
+
+                hidden_error = np.dot(pesos_salidas.T, output_delta)
+                hidden_delta = hidden_error * self.sigmoid_derivative(salida_capa_oculta)
+
+                pesos_salidas += tasa_aprendizaje * np.dot(output_delta, salida_capa_oculta.T)
+                bias_salidas += tasa_aprendizaje * output_delta
+
+                pesos += tasa_aprendizaje * np.dot(hidden_delta, tablero.T)
+                bias += tasa_aprendizaje * hidden_delta
+
+        def predict(tablero):
+            tablero = np.array(tablero).reshape(-1, 1)
+            salida_capa_oculta = self.sigmoid(np.dot(pesos, tablero) + bias)
+            salida_capa_salida = self.sigmoid(np.dot(pesos_salidas, salida_capa_oculta) + bias_salidas)
+            return np.argmax(salida_capa_salida)
+
+        # Ejemplo de predicción
+        '''
+        entrada = [
+                0, 2, 0, 1, 0,
+                0, 0, 2, 0, 0, 
+                0, 2, 0, 0, 0, 
+            ]
+        '''
+
+        hola = predict(entrada)
+        print(f"La mejor jugada es en la posición: {hola +1}")
+        return hola + 1 
+
             
-    
-    '''
-    def turnoPerro1(self, nodo):
-        print("==========duncion turnoperro=========== => ",nodo)
-        print("conejo nodo => ", self.conejo_nodo)
-        if nodo != self.conejo_nodo:
-            if nodo == self.perro1_nodo or nodo in self.graph.grafo[self.perro1_nodo]:
-                y, x = self.graph.nodos[nodo]
-                
-                if y >= self.perro1_column:
-                    print("columna perro y es mayor ", y)
-                    print("columna perro ", self.perro1_column)
-                    print("estado", y >= self.perro1_column)
-                    self.nodo_seleccionado_perros = nodo
-                    self.mover_perro(nodo)
-                    self.perro1_column = y
-                    self.cambiarTurno(2)
-                else: 
-                    print("estado", y >= self.perro1_column)
-                    print("No puedes retroceder a una columna menor que la actual")
-
-                    #self.perro1_column = y
-        else:
-            print("no puedes ponerte en el nodo del conejo", self.conejo_nodo)
-
-    def turnoPerro2(self, nodo):
-        print("==========duncion turnoperro=========== => ",nodo)
-        print("conejo nodo => ", self.conejo_nodo)
-        if nodo != self.conejo_nodo:
-            if nodo == self.perro2_nodo or nodo in self.graph.grafo[self.perro2_nodo]:
-                y, x = self.graph.nodos[nodo]
-                
-                if y >= self.perro2_column:
-                    print("columna perro y es mayor ", y)
-                    print("columna perro ", self.perro2_column)
-                    print("estado", y >= self.perro2_column)
-                    self.nodo_seleccionado_perros = nodo
-                    self.mover_perro2(nodo)
-                    self.perro2_column = y
-                    self.cambiarTurno(2)
-                else: 
-                    print("estado", y >= self.perro2_column)
-                    print("No puedes retroceder a una columna menor que la actual")
-
-                    #self.perro1_column = y
-        else:
-            print("no puedes ponerte en el nodo del conejo", self.conejo_nodo)
-
-    def turnoPerro3(self, nodo):
-        print("==========duncion turnoperro=========== => ",nodo)
-        print("conejo nodo => ", self.conejo_nodo)
-        if nodo != self.conejo_nodo:
-            if nodo == self.perro3_nodo or nodo in self.graph.grafo[self.perro3_nodo]:
-                y, x = self.graph.nodos[nodo]
-                
-                if y >= self.perro3_column:
-                    print("columna perro y es mayor ", y)
-                    print("columna perro ", self.perro3_column)
-                    print("estado", y >= self.perro3_column)
-                    self.nodo_seleccionado_perros = nodo
-                    self.mover_perro3(nodo)
-                    self.perro3_column = y
-                    self.cambiarTurno(2)
-                else: 
-                    print("estado", y >= self.perro3_column)
-                    print("No puedes retroceder a una columna menor que la actual")
-
-                    #self.perro2_column = y
-        else:
-            print("no puedes ponerte en el nodo del conejo", self.conejo_nodo)
-    '''
-
-    
